@@ -17,8 +17,8 @@ User = get_user_model()
     ),
 )
 class RegistrationView(generics.CreateAPIView):
-    permission_classes = (AllowAny,)
     serializer_class = user_serializers.RegistrationSerializer
+    permission_classes = (AllowAny,)
 
 
 @extend_schema_view(
@@ -44,8 +44,8 @@ class ChangePasswordView(APIView):
 )
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
-    permission_classes = (IsAuthenticated,)
     serializer_class = user_serializers.UserListSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 @extend_schema_view(
@@ -53,9 +53,9 @@ class UserListView(generics.ListAPIView):
     patch=extend_schema(summary="Change user profile", tags=["Users"]),
 )
 class MeView(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = user_serializers.MeRetrieveSerializer
+    permission_classes = (IsAuthenticated,)
     http_method_names = ("get", "patch")
 
     def get_serializer_class(self):
