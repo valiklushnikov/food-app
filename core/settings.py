@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from email.policy import default
 
 import environ
 
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework_simplejwt",
     "apps.accounts.apps.AccountsConfig",
+    "apps.products.apps.ProductsConfig",
     "drf_spectacular",
 ]
 
@@ -73,6 +75,13 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "db_sqlite3"),
     },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379",
+    }
 }
 
 # DJANGO REST FRAMEWORK
@@ -171,3 +180,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(hours=8),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=30),
 }
+
+# FATSECRET API
+FATSECRET_CLIENT_ID = env.str("CLIENT_ID", default="")
+FATSECRET_CLIENT_SECRET = env.str("CLIENT_SECRET", default="")

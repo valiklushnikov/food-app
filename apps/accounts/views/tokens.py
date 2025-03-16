@@ -7,23 +7,23 @@ from rest_framework.response import Response
 User = get_user_model()
 
 def set_auth_cookies(response, access_token=None, refresh_token=None):
+    auth_options = {
+        "httponly": True,
+        "secure": True,
+        "samesite": "None",
+        "path": "/"
+    }
     if access_token:
         response.set_cookie(
             key="access_token",
             value=access_token,
-            httponly=True,
-            secure=True,
-            samesite="None",
-            path="/",
+            **auth_options,
         )
     if refresh_token:
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
-            httponly=True,
-            secure=True,
-            samesite="None",
-            path="/",
+            **auth_options,
         )
 
     return response
@@ -36,8 +36,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         try:
             response = super().post(request, *args, **kwargs)
-            access_token = response.data.get('access')
-            refresh_token = response.data.get('refresh')
+            access_token = response.data.get("access")
+            refresh_token = response.data.get("refresh")
             email = request.data["email"]
 
             try:
