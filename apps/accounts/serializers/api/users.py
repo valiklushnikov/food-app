@@ -32,7 +32,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password_repeat']:
+        if attrs["password"] != attrs["password_repeat"]:
             raise serializers.ValidationError("Passwords does not match")
         return attrs
 
@@ -46,7 +46,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         try:
             validate_password(value)
         except ValidationError as error:
-            raise serializers.ValidationError({'password': error.messages})
+            raise serializers.ValidationError({"password": error.messages})
         return value
 
     def create(self, validated_data):
@@ -82,7 +82,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         try:
             validate_password(value)
         except ValidationError as error:
-            raise serializers.ValidationError({'password': error.messages})
+            raise serializers.ValidationError({"password": error.messages})
         return value
 
     def update(self, instance, validated_data):
@@ -135,10 +135,10 @@ class MeUpdateSerializer(serializers.ModelSerializer):
         profile_data = (
             validated_data.pop("profile") if "profile" in validated_data else None
         )
-        instance.first_name = validated_data['first_name']
-        instance.last_name = validated_data['last_name']
-        instance.save()
-
+        instance.save(
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+        )
         if profile_data:
             profile_instance = instance.profile
             for attr, value in profile_data.items():

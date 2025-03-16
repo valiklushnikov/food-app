@@ -16,6 +16,7 @@ services:
               python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:13-alpine
@@ -23,6 +24,13 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning
 
   adminer:
     image: adminer:latest
