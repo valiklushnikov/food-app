@@ -28,10 +28,13 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "apps.accounts.apps.AccountsConfig",
     "apps.products.apps.ProductsConfig",
+    "apps.meals.apps.MealsConfig",
     "drf_spectacular",
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -100,6 +103,9 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.MultiPartParser",
         "rest_framework.parsers.FileUploadParser",
     ),
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
@@ -148,12 +154,14 @@ SPECTACULAR_SETTINGS = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "SERVE_AUTHENTICATION": [
+        "apps.accounts.authenticate.CookiesJWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
     ],
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
         "DisplayOperationId": True,
+        "persistAuthorization": True,
     },
     "COMPONENT_SPLIT_REQUEST": True,
     "SORT_OPERATIONS": False,
@@ -181,6 +189,18 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=30),
 }
 
+INTERNAL_IPS = [
+    "172.17.0.1",
+]
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+    "INTERCEPT_REDIRECTS": False,
+}
+
 # FATSECRET API
 FATSECRET_CLIENT_ID = env.str("CLIENT_ID", default="")
 FATSECRET_CLIENT_SECRET = env.str("CLIENT_SECRET", default="")
+TOKEN_URL = "https://oauth.fatsecret.com/connect/token"
+BASE_URL_GET_PRODUCT = "https://platform.fatsecret.com/rest/food/v4"
+BASE_URL_SEARCH_PRODUCT = "https://platform.fatsecret.com/rest/foods/search/v1"

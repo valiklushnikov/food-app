@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.products.models import Product
+from apps.products.models.products import Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -16,6 +16,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
         def create(self, validated_data):
             return Product.objects.create(**validated_data)
+
+
+class ProductRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
 
 
 class ProductListSerializer(serializers.Serializer):
