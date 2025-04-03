@@ -1,16 +1,16 @@
 import requests
 from django.core.cache import cache
 from django.conf import settings
-from rest_framework.response import Response
-from rest_framework import status
+
+
+class FatsecretAPIError(Exception):
+    pass
 
 
 def retrieve_product_from_fatsecret_api(product_id):
     fatsecret_api = FatSecretAPI()
-    try:
-        response_data = fatsecret_api.get_product(product_id)
-    except requests.RequestException as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    response_data = fatsecret_api.get_product(product_id)
+
     try:
         fatsecret_id = response_data["food_id"]
         name = response_data["food_name"]
@@ -19,7 +19,9 @@ def retrieve_product_from_fatsecret_api(product_id):
         fat = response_data["servings"]["serving"][0]["fat"]
         calories = response_data["servings"]["serving"][0]["calories"]
     except KeyError as e:
-        return Response({"error": f"Key {e} does not exist"})
+        raise FatsecretAPIError(
+            f"Error message: Key {e} does not exist in response data"
+        )
 
     product_data = {
         "fatsecret_id": fatsecret_id,
@@ -41,7 +43,6 @@ def response_context(url=None, token=None, product_id=None, query=None):
     }
     params = {key: value for key, value in params.items() if value is not None}
     headers = {"Authorization": f"Bearer {token}"}
-
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     return response.json()
@@ -80,7 +81,7 @@ class FatSecretAPI:
         )
         error_message = response.get("error", {})
         if error_message:
-            raise ValueError(
+            raise FatsecretAPIError(
                 f"Error message: Invalid ID: product_id '{product_id}' does not exist"
             )
         return response["food"]
@@ -93,10 +94,10 @@ class FatSecretAPI:
         )
         error_message = response.get("error", {}).get("message")
         if error_message:
-            raise ValueError(f"Error massage: { error_message}")
+            raise FatsecretAPIError(f"Error massage: {error_message}")
         is_food_exist = response.get("foods", {}).get("food")
         if not is_food_exist:
-            raise ValueError(
-                f"Error message: Invalid search: product does not exist"
+            raise FatsecretAPIError(
+                "Error message: Invalid search: product does not exist"
             )
         return response["foods"]["food"]

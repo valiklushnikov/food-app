@@ -31,10 +31,8 @@ class ProductView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         try:
             product_data = services.retrieve_product_from_fatsecret_api(product_id)
-        except requests.RequestException as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except ValueError as error:
-            raise serializers.ValidationError({"error": error})
+        except services.FatsecretAPIError as error:
+            raise serializers.ValidationError(error)
         serializer = ProductSerializer(data=product_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -63,7 +61,7 @@ class ProductSearchView(APIView):
             response_data = fatsecret_api.search_products(name)
         except requests.RequestException as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except ValueError as error:
+        except services.FatsecretAPIError as error:
             raise serializers.ValidationError({"error": error})
         products = [
             {

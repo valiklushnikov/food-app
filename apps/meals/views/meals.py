@@ -8,11 +8,30 @@ from apps.meals.serializers.api import meals
 from apps.meals.serializers.nested import meal_item
 from apps.meals.models.meals import Meal, MealItem
 from apps.meals import backends as meal_filter
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 
 
 @extend_schema_view(
-    list=extend_schema(summary="Meals list", tags=["Meals"]),
+    list=extend_schema(
+        summary="Meals list",
+        tags=["Meals"],
+        parameters=[
+            OpenApiParameter(
+                name="from_date",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтрация по дате (формат: YYYY-MM-DD)",
+                required=False,
+            ),
+            OpenApiParameter(
+                name="to_date",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтрация по дате (формат: YYYY-MM-DD)",
+                required=False,
+            )
+        ],
+    ),
     retrieve=extend_schema(summary="Meal detail", tags=["Meals"]),
     create=extend_schema(summary="Create meal", tags=["Meals"]),
     update=extend_schema(summary="Update meal", tags=["Meals"]),
@@ -29,7 +48,7 @@ class MealsViewSet(
     serializer_class = meals.MealDisplaySerializer
     filter_backends = (
         meal_filter.IsOwnerFilterBackend,
-        meal_filter.IsTodayFilterBackend,
+        meal_filter.MealDateFilterBackend,
     )
 
     def get_serializer_class(self):
