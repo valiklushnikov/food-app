@@ -5,8 +5,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from apps.accounts.models.profile import Profile
 
 from apps.accounts.serializers.api import users as user_serializers
+from apps.accounts.serializers.nested.profile import ProfileSummarizeSerializer
 
 User = get_user_model()
 
@@ -65,3 +67,16 @@ class MeView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+@extend_schema_view(
+    get=extend_schema(
+        request=ProfileSummarizeSerializer,
+        summary="Get summary",
+        tags=["Users"],
+    ),
+)
+class SummaryView(APIView):
+    def get(self, request):
+        profile = Profile.objects.get(user=request.user)
+        serializer = ProfileSummarizeSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
