@@ -120,6 +120,8 @@ class MeRetrieveSerializer(serializers.ModelSerializer):
 
 
 class MeUpdateSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=False, allow_blank=True)
+    last_name = serializers.CharField(required=False, allow_blank=True)
     profile = ProfileUpdateSerializer()
 
     class Meta:
@@ -132,13 +134,12 @@ class MeUpdateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
         profile_data = (
             validated_data.pop("profile") if "profile" in validated_data else None
         )
-        instance.save(
-            first_name=validated_data["first_name"],
-            last_name=validated_data["last_name"],
-        )
+        instance.save()
         if profile_data:
             profile_instance = instance.profile
             for attr, value in profile_data.items():

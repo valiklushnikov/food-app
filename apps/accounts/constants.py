@@ -1,5 +1,3 @@
-from django.db.models import Count
-
 MINIMAL = 1.2
 LOW = 1.375
 MODERATE = 1.55
