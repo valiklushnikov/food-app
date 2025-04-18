@@ -17,7 +17,7 @@ def add_product_to_meal(meal, product_data):
         defaults={"quantity": product_data["quantity"]},
     )
     if not created:
-        meal_item.quantity += product_data["quantity"]
-        meal_item.save()
-    meal.refresh_from_db()
+        MealItem.objects.filter(id=meal_item.id).update(
+            quantity=meal_item.quantity + product_data["quantity"]
+        )
     meal.update_nutrient()
