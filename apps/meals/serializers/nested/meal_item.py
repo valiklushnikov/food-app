@@ -57,14 +57,14 @@ class MealItemDetailSerializer(serializers.ModelSerializer):
             "total_calories",
         )
 
-    def get_protein(self, obj):
+    def get_protein(self, obj) -> float:
         return round(obj.product.protein * (obj.quantity / 100), 2)
 
-    def get_carbs(self, obj):
+    def get_carbs(self, obj) -> float:
         return round(obj.product.carbs * (obj.quantity / 100), 2)
 
-    def get_fat(self, obj):
+    def get_fat(self, obj) -> float:
         return round(obj.product.fat * (obj.quantity / 100), 2)
 
-    def get_total_calories(self, obj):
+    def get_total_calories(self, obj) -> float:
         return round(obj.product.calories * (obj.quantity / 100), 2)

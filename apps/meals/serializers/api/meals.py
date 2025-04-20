@@ -10,7 +10,7 @@ class BaseMealSerializer(serializers.ModelSerializer):
     class Meta:
         abstract = True
 
-    def get_meal_category(self, obj):
+    def get_meal_category(self, obj) -> str:
         return obj.get_category_display()
 
 
@@ -25,7 +25,7 @@ class BaseMealWriteSerializer(BaseMealSerializer):
     class Meta:
         abstract = True
 
-    def get_food(self, obj):
+    def get_food(self, obj) -> list:
         meal_items = MealItem.objects.filter(meal=obj)
         return [MealItemDetailSerializer(meal_item).data for meal_item in meal_items]
 
