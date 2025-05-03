@@ -45,8 +45,9 @@ class ProductView(APIView):
             OpenApiParameter(
                 name="name",
                 description="Product name",
-                required=False,
+                required=True,
                 type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
             )
         ],
         summary="Search product",
@@ -69,7 +70,7 @@ class ProductSearchView(APIView):
                 "name": item["food_name"],
                 "food_description": item["food_description"],
             }
-            for item in response_data
+            for item in response_data if "100g" in item["food_description"]
         ]
         serializer = ProductListSerializer(data=products, many=True)
         serializer.is_valid(raise_exception=True)

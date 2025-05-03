@@ -8,7 +8,12 @@ from apps.meals.serializers.api import meals
 from apps.meals.serializers.nested import meal_item
 from apps.meals.models.meals import Meal, MealItem
 from apps.meals import backends as meal_filter
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiParameter,
+    OpenApiTypes
+)
 
 
 @extend_schema_view(
@@ -18,16 +23,16 @@ from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiPara
         parameters=[
             OpenApiParameter(
                 name="from_date",
-                type=str,
+                type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
-                description="Фильтрация по дате (формат: YYYY-MM-DD)",
+                description="Filter by date (format: YYYY-MM-DD)",
                 required=False,
             ),
             OpenApiParameter(
                 name="to_date",
-                type=str,
+                type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
-                description="Фильтрация по дате (формат: YYYY-MM-DD)",
+                description="Filter by date (format: YYYY-MM-DD)",
                 required=False,
             )
         ],

@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.contrib.auth import get_user_model
 from apps.products.models.products import Product
 
@@ -31,7 +33,13 @@ class Meal(models.Model):
         self.carbs = round(sum(item.product.carbs * (item.quantity / 100) for item in meal_items), 2)
         self.fat = round(sum(item.product.fat * (item.quantity / 100) for item in meal_items), 2)
         self.total_calories = round(sum(item.product.calories * (item.quantity / 100) for item in meal_items), 2)
-        self.save()
+
+        Meal.objects.filter(id=self.id).update(
+            protein=self.protein,
+            carbs=self.carbs,
+            fat=self.fat,
+            total_calories=self.total_calories
+        )
 
 
 class MealItem(models.Model):
@@ -41,3 +49,7 @@ class MealItem(models.Model):
 
     def __str__(self):
         return f"{self.product} - {self.quantity} g"
+
+@receiver(post_save, sender=Meal)
+def update_meal_nutrients(sender, instance, **kwargs):
+    instance.update_nutrient()

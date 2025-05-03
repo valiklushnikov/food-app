@@ -3,8 +3,9 @@ from apps.accounts.models.profile import Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    gender = serializers.SerializerMethodField()
-    activity_level = serializers.SerializerMethodField()
+    gender = serializers.CharField(source="get_gender_display")
+    activity_level = serializers.CharField(source="get_activity_level_display")
+    goal = serializers.CharField(source="get_goal_display")
 
     class Meta:
         model = Profile
@@ -18,12 +19,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             "photo",
             "created_at",
         )
-
-    def get_gender(self, obj):
-        return obj.get_gender_display()
-
-    def get_activity_level(self, obj):
-        return obj.get_activity_level_display()
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
@@ -51,9 +46,46 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_activity_level(self, value):
-        choices_values = [choice[0] for choice in Profile._meta.get_field("activity_level").choices]
+        choices_values = [
+            choice[0] for choice in Profile._meta.get_field("activity_level").choices
+        ]
         if value not in choices_values:
             raise serializers.ValidationError(
                 f"Invalid activity level value. Valid value: {', '.join([str(choice) for choice in choices_values])}"
             )
         return value
+
+
+class ProfileSummarizeSerializer(serializers.ModelSerializer):
+    macros = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Profile
+        fields = (
+            "recommended_calories",
+            "macros",
+        )
+
+    def get_macros(self, obj):
+        macros = {}
+        match obj.get_goal_display():
+            case "Weight loss":
+                macros["protein"] = obj.weight * 2
+                macros["fat"] = round(
+                    obj.weight * 0.8
+                    if obj.get_gender_display() == "Male"
+                    else obj.weight * 1.2
+                )
+            case "Weight maintenance":
+                macros["protein"] = round(obj.weight * 1.5)
+                macros["fat"] = obj.weight * 1
+            case "Weight gain":
+                macros["protein"] = round(obj.weight * 1.8)
+                macros["fat"] = round(obj.weight * 1.2)
+        macros["carbs"] = round(
+            (
+                obj.recommended_calories
+                - (macros.get("protein") * 4 + macros.get("fat") * 9)
+            ) / 4
+        )
+        return macros

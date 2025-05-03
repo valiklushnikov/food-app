@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.response import Response
@@ -38,25 +39,26 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             response = super().post(request, *args, **kwargs)
             access_token = response.data.get("access")
             refresh_token = response.data.get("refresh")
-            email = request.data["email"]
+        except AuthenticationFailed as e:
+            return Response({"success": False, "error": str(e)})
+        except KeyError:
+            return Response({"success": False, "error": "Email ir required"})
+        email = request.data.get("email")
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist"})
 
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                return Response({"error": "User does not exist"})
-
-            auth_response = Response()
-
-            auth_response.data = {
-                "success": True,
-                "user": {
-                    "email": user.email,
-                },
-            }
-
+        auth_response = Response({
+            "success": True,
+            "user": {
+                "email": user.email,
+            },
+        })
+        try:
             return set_auth_cookies(auth_response, access_token, refresh_token)
-        except:
-            return Response({"success": False})
+        except Exception as e:
+            return Response({"success": False, "error": str(e)})
 
 
 @extend_schema_view(

@@ -1,4 +1,5 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class CookiesJWTAuthentication(JWTAuthentication):
@@ -9,6 +10,6 @@ class CookiesJWTAuthentication(JWTAuthentication):
         validated_token = self.get_validated_token(access_token)
         try:
             user = self.get_user(validated_token)
-        except:
+        except AuthenticationFailed:
             return None
         return (user, validated_token)
