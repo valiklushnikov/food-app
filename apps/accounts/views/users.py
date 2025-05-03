@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResponse
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -25,15 +25,17 @@ class RegistrationView(generics.CreateAPIView):
 
 @extend_schema_view(
     post=extend_schema(
-        request=user_serializers.ChangePasswordSerializer,
+        responses={204: OpenApiResponse(description="Password changed successfully")},
         summary="Сhange password",
         tags=["Authentication & Authorization"],
     ),
 )
 class ChangePasswordView(APIView):
+    serializer_class = user_serializers.ChangePasswordSerializer
+
     def post(self, request):
         user = request.user
-        serializer = user_serializers.ChangePasswordSerializer(
+        serializer =self.serializer_class(
             instance=user, data=request.data
         )
         serializer.is_valid(raise_exception=True)
@@ -70,7 +72,7 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 @extend_schema_view(
     get=extend_schema(
-        request=ProfileSummarizeSerializer,
+        responses=ProfileSummarizeSerializer,
         summary="Get summary",
         tags=["Users"],
     ),

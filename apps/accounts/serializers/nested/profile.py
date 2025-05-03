@@ -66,7 +66,7 @@ class ProfileSummarizeSerializer(serializers.ModelSerializer):
             "macros",
         )
 
-    def get_macros(self, obj):
+    def get_macros(self, obj) -> dict:
         macros = {}
         match obj.get_goal_display():
             case "Weight loss":

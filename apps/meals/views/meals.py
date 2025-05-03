@@ -93,7 +93,7 @@ class MealProductViewSet(viewsets.GenericViewSet,
     def get_serializer_class(self):
         if self.action == "create":
             return meal_item.MealItemCreateSerializer
-        return self.serializer_class
+        return meal_item.MealItemDetailSerializer
 
     @action(
         methods=["POST"],

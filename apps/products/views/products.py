@@ -18,7 +18,7 @@ from apps.products import services
 
 @extend_schema_view(
     get=extend_schema(
-        request=ProductSerializer,
+        responses=ProductSerializer,
         summary="Get product",
         tags=["Products"],
     ),
@@ -50,6 +50,7 @@ class ProductView(APIView):
                 location=OpenApiParameter.QUERY,
             )
         ],
+        responses=ProductListSerializer,
         summary="Search product",
         tags=["Products"],
     )
